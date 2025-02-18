@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('isAvailable')->default(true);
             $table->string('borrowsBY', 100)->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('set null');
+            $table->text('description');
             $table->foreignId('category_id')->constrained('categories')->onDelete('set null'); // Clé étrangère vers categories
             $table->timestamps();
         });
