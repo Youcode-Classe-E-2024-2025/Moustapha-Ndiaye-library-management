@@ -12,4 +12,4 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
 // home
-Route::get('/home' , [AuthController::class, 'index']);
+Route::get('/home' , [AuthController::class, 'index'])->name('home');

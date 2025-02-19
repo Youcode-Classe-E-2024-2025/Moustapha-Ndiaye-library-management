@@ -7,10 +7,5 @@
 </head>
 <body>
     <h1>Welcome !</h1>
-    <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit">logout</button>
-    </form>
-
 </body>
 </html>

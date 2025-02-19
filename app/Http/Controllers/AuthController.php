@@ -36,7 +36,6 @@ class AuthController extends Controller
         Log::info('Form submitted', $request->all());
         // dd($request->all());
 
-        // Validation
        // Data validation
         $request->validate([
             'fullname' => 'required',
@@ -62,17 +61,13 @@ class AuthController extends Controller
     public function login(Request $request){
 
         // data validation
-        // $request = validate([
-        //     'email' => 'required | email',
-        //     'password' => 'required'
-        // ]);
-        $request->validate([
+        $credential = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
         // checking datas
-        if (Auth::attempt($request('email', 'password'))){
+        if (Auth::attempt($credential)){
             return to_route('home')->with('success', 'login sucessfully');
         }
 
