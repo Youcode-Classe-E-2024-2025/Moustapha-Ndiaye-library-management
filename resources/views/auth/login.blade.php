@@ -20,6 +20,7 @@
 <!-- resources/views/auth/login.blade.php -->
 <body class="bg-[#2C001E] min-h-screen flex items-center justify-center font-sans antialiased">
     <div class="bg-[#300a24] p-10 rounded-lg shadow-xl w-full max-w-md text-white">
+    <a href="/register" class="text-base text-[#e95420] hover:text-[#e95420]/80">Register</a>
         <!-- Login Form -->
         <form action="{{ route('login') }}" method="POST" class="space-y-8">
             @csrf

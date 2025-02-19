@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 
@@ -20,37 +22,58 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    public function index(){
+        return view('home');
+    }
+
     // resgistration 
-    public function register(Request $request){
-        // data validation
-        $request = validate([
-            'fullname' => 'require',
-            'email' => 'required | email | unique:users',
-            'password' => 'required | min : 6 | confirmed',
+    public function register(Request $request)
+    {
+        // Debugging request data
+        // dd($request->all());
+        
+        // Or log the request data
+        Log::info('Form submitted', $request->all());
+        // dd($request->all());
+
+        // Validation
+       // Data validation
+        $request->validate([
+            'fullname' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed',
         ]);
 
-        // create user
-        User::create([
-            'fullname' => $request -> fullname,
-            'email' => $request -> email,
-            'password' => hash::make($request->password)
+
+        // Create user
+        $user = User::create([
+            'fullname' => $request->fullname,
+            'email' => $request->email,
+            'role' => 'user',
+            'password' => Hash::make($request->password),
+            
         ]);
 
-        return redirect() -> route('login') -> with('sucess', 'registration sucessfuly');
+        return to_route('login')->with('success', 'Registration successful.');
+        
     }
 
     // login method 
     public function login(Request $request){
 
         // data validation
-        $request = validate([
-            'email' => 'required | email',
-            'password' => 'required'
+        // $request = validate([
+        //     'email' => 'required | email',
+        //     'password' => 'required'
+        // ]);
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
         // checking datas
         if (Auth::attempt($request('email', 'password'))){
-            return redirect()->route('home')->with('success', 'login sucessfully');
+            return to_route('home')->with('success', 'login sucessfully');
         }
 
         // error message
