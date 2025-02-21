@@ -9,7 +9,6 @@ use App\Models\User;
 
 class BookController extends Controller
 {
-    // Afficher tous les livres
     public function index()
     {
         $books = Book::all();
@@ -19,7 +18,15 @@ class BookController extends Controller
         return view('admin.dashboard', compact('books', 'categories', 'users'));
     }
 
-    // Afficher le formulaire de création
+    public function indexUser()
+    {
+        $books = Book::all();
+        $categories = Category::all();
+        $users = User::all();
+        
+        return view('user.dashboard', compact('books', 'categories', 'users'));
+    }
+
     public function create()
     {
         $categories = Category::all();
@@ -28,10 +35,8 @@ class BookController extends Controller
         return view('admin.create-book', compact('categories', 'users'));
     }
 
-    // Enregistrer un livre
     public function store(Request $request)
 {
-    // Validation des données
     $request->validate([
         'title' => 'required|string|max:255',
         'imgURL' => 'required|url',
@@ -39,13 +44,11 @@ class BookController extends Controller
         'isAvailable' => 'required|boolean',
     ]);
 
-    // Création d'un nouveau livre
     $book = new Book();
     $book->title = $request->title;
     $book->imgURL = $request->imgURL;
     $book->category_id = $request->category_id;
     $book->isAvailable = $request->isAvailable;
-    // $book->user_id = auth()->id();
     $book->user_id = 1;
 
     $book->save();
@@ -54,14 +57,12 @@ class BookController extends Controller
 }
 
 
-    // Afficher un livre spécifique
     public function show($id)
     {
         $book = Book::findOrFail($id);
         return view('admin.show-book', compact('book'));
     }
 
-    // Afficher le formulaire pour modifier un livre
     public function edit($id)
     {
         $book = Book::findOrFail($id);
@@ -69,32 +70,33 @@ class BookController extends Controller
         return view('admin.edit-book', compact('book', 'categories'));
     }
 
-    // Mettre à jour un livre
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'imgURL' => 'required|url',
-            'category_id' => 'required|exists:categories,id',
-            'isAvailable' => 'required|boolean',
-        ]);
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'imgURL' => 'required|url',
+        'category_id' => 'required|exists:categories,id',
+        'isAvailable' => 'required|boolean',
+    ]);
 
-        $book = Book::findOrFail($id);
-        $book->title = $request->title;
-        $book->imgURL = $request->imgURL;
-        $book->category_id = $request->category_id;
-        $book->isAvailable = $request->isAvailable;
-        $book->user_id = auth()->id(); // L'ID de l'utilisateur connecté
-        $book->save();
+    $book = Book::findOrFail($id);
 
-        return redirect()->route('books.index')->with('success', 'Livre mis à jour avec succès');
-    }
+    $book->title = $request->title;
+    $book->imgURL = $request->imgURL;
+    $book->category_id = $request->category_id;
+    $book->isAvailable = $request->isAvailable;
+    $book->user_id = auth()->id(); 
+    $book->user_id = 6;
+    $book->save();
 
-    // Supprimer un livre
+    return redirect()->route('books.index')->with('success', 'Book updated successfully');
+}
+
+
     public function destroy($id)
     {
         $book = Book::findOrFail($id);
         $book->delete();
-        return redirect()->route('books.index')->with('success', 'Livre supprimé avec succès');
+        return redirect()->route('books.index')->with('success', 'Book deleted successfully');
     }
 }

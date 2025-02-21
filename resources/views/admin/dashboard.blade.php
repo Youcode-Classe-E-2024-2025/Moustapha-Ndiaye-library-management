@@ -62,7 +62,7 @@
                                     @if($book->isAvailable)
                                         <span class="text-green-400">Available</span>
                                     @else
-                                        <span class="text-red-400">Borrowed by {{ $book->borrowsBY }}</span>
+                                        <span class="text-red-400">Borrowed{{ $book->borrowsBY }}</span>
                                     @endif
                                 </p>
                                 <p>
@@ -180,6 +180,80 @@
     </div>
 </div>
 
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-[#300a24] p-8 rounded-xl shadow-lg w-full max-w-2xl mx-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-white">Edit Book</h2>
+            <button onclick="closeEditModal()" class="text-gray-300 hover:text-gray-100">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form id="editForm" action="" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="mb-4">
+                <label for="edit_title" class="block text-gray-300 font-medium mb-2">Book Title</label>
+                <input type="text" 
+                    id="edit_title" 
+                    name="title" 
+                    class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                    required>
+            </div>
+            <div class="mb-4">
+                <label for="edit_imgURL" class="block text-gray-300 font-medium mb-2">Image URL</label>
+                <input type="url" 
+                    id="edit_imgURL" 
+                    name="imgURL" 
+                    class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                    required>
+            </div>
+            <div class="mb-4">
+                <label for="edit_category_id" class="block text-gray-300 font-medium mb-2">Category</label>
+                <select id="edit_category_id" 
+                        name="category_id" 
+                        class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                        required>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="edit_isAvailable" class="block text-gray-300 font-medium mb-2">Availability</label>
+                <select id="edit_isAvailable" 
+                        name="isAvailable" 
+                        class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                        required>
+                    <option value="1">Available</option>
+                    <option value="0">Not Available</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="edit_borrowsBY" class="block text-gray-300 font-medium mb-2">Borrowed By (User ID)</label>
+                <input type="number" 
+                       id="edit_borrowsBY" 
+                       name="borrowsBY" 
+                       class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white">
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" 
+                        onclick="closeEditModal()" 
+                        class="px-6 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-6 py-2 rounded-lg">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
     </div>
 
     <script>
@@ -240,6 +314,47 @@
                 closeEditModal();
             }
         }
+
+        // Function to open the Edit Modal with book data
+function openEditModal(id, title, imgURL, category_id, isAvailable, borrowsBY) {
+    const modal = document.getElementById('editModal');
+    const form = document.getElementById('editForm');
+    
+    form.action = `/books/${id}`;
+    document.getElementById('edit_title').value = title;
+    document.getElementById('edit_imgURL').value = imgURL;
+    document.getElementById('edit_category_id').value = category_id;
+    document.getElementById('edit_isAvailable').value = isAvailable;
+    document.getElementById('edit_borrowsBY').value = borrowsBY;
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+// Function to close the Edit Modal
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modals when Escape key is pressed
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeEditModal();
+    }
+});
+
+// Close modals if clicked outside the modal
+window.onclick = function(event) {
+    const editModal = document.getElementById('editModal');
+    if (event.target === editModal) {
+        closeEditModal();
+    }
+}
+
     </script>    
 </body>
 </html>

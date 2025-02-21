@@ -24,6 +24,8 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
 //  user Routes
 Route::middleware(['auth'])->group(function() {
     Route::get('/user', [AuthController::class, 'userDashboard'])->name('user');
+    Route::get('/user', [BookController::class, 'indexUser'])->name('user');
+
 });
 
 Route::resource('books', BookController::class);
