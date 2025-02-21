@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\User;
+
 
 class BookController extends Controller
 {
@@ -12,15 +14,18 @@ class BookController extends Controller
     {
         $books = Book::all();
         $categories = Category::all();
+        $users = User::all();
         
-        return view('admin.dashboard', compact('books', 'categories'));
+        return view('admin.dashboard', compact('books', 'categories', 'users'));
     }
 
     // Afficher le formulaire de création
     public function create()
     {
         $categories = Category::all();
-        return view('admin.create-book', compact('categories'));
+        $users = User::all();
+
+        return view('admin.create-book', compact('categories', 'users'));
     }
 
     // Enregistrer un livre
@@ -40,7 +45,9 @@ class BookController extends Controller
     $book->imgURL = $request->imgURL;
     $book->category_id = $request->category_id;
     $book->isAvailable = $request->isAvailable;
-    $book->user_id = auth()->id(); // L'ID de l'utilisateur connecté
+    // $book->user_id = auth()->id();
+    $book->user_id = 1;
+
     $book->save();
 
     return redirect()->route('books.index')->with('success', 'Livre ajouté avec succès');

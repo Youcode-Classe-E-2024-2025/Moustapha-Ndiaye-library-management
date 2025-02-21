@@ -14,7 +14,7 @@
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="text-white text-xl font-semibold">Saint-Marc Library</div>
                 <div class="flex items-center gap-4">
-                    <span class="text-gray-300">Welcome, {{ Auth::user()?->fullname }}, {{ Auth::user()?->role }}</span>
+                    <!-- <span class="text-gray-300">Welcome, {{ Auth::user()?->fullname }}, {{ Auth::user()?->role }}</span> -->
                     <form method="POST" action="{{ url('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="px-4 py-2 bg-[#e95420] hover:bg-[#e95420]/90 text-white rounded-md transition">
@@ -99,60 +99,87 @@
             </div>
         </div>
 
-        <!-- Create Modal -->
-        <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
-            <div class="bg-[#300a24] p-8 rounded-xl shadow-lg w-full max-w-2xl mx-4">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-white">Add a New Book</h2>
-                    <button onclick="closeCreateModal()" class="text-gray-300 hover:text-gray-100">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-                <form action="{{ route('books.store') }}" method="POST">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="title" class="block text-gray-300 font-medium mb-2">Title</label>
-                        <input type="text" 
-                               id="title" 
-                               name="title" 
-                               class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
-                               required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="imgURL" class="block text-gray-300 font-medium mb-2">Image URL</label>
-                        <input type="url" 
-                               id="imgURL" 
-                               name="imgURL" 
-                               class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
-                               required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="category_id" class="block text-gray-300 font-medium mb-2">Category</label>
-                        <select id="category_id" 
-                                name="category_id" 
-                                class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
-                                required>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex justify-end gap-3">
-                        <button type="button" 
-                                onclick="closeCreateModal()" 
-                                class="px-6 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">
-                            Cancel
-                        </button>
-                        <button type="submit" 
-                                class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-6 py-2 rounded-lg">
-                            Add Book
-                        </button>
-                    </div>
-                </form>
-            </div>
+<!-- Create Modal -->
+<div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-[#300a24] p-8 rounded-xl shadow-lg w-full max-w-2xl mx-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-white">Add a New Book</h2>
+            <button onclick="closeCreateModal()" class="text-gray-300 hover:text-gray-100">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
+        <form action="{{ route('books.store') }}" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label for="title" class="block text-gray-300 font-medium mb-2">Book Title</label>
+                <input type="text" 
+                       id="title" 
+                       name="title" 
+                       class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                       required>
+            </div>
+            <div class="mb-4">
+                <label for="imgURL" class="block text-gray-300 font-medium mb-2">Image URL</label>
+                <input type="url" 
+                       id="imgURL" 
+                       name="imgURL" 
+                       class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                       required>
+            </div>
+            <div class="mb-4">
+                <label for="category_id" class="block text-gray-300 font-medium mb-2">Category</label>
+                <select id="category_id" 
+                        name="category_id" 
+                        class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                        required>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="isAvailable" class="block text-gray-300 font-medium mb-2">Availability</label>
+                <select id="isAvailable" 
+                        name="isAvailable" 
+                        class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                        required>
+                    <option value="1">Available</option>
+                    <option value="0">Not Available</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="borrowsBY" class="block text-gray-300 font-medium mb-2">Borrowed By (User ID)</label>
+                <input type="number" 
+                       id="borrowsBY" 
+                       name="borrowsBY" 
+                       class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white">
+            </div>
+            <div class="mb-4">
+                <label for="user_id" class="block text-gray-300 font-medium mb-2">Added By (Admin ID)</label>
+                <input type="number" 
+                       id="user_id" 
+                       name="user_id" 
+                       value="{{ auth()->id() }}" 
+                       class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                       readonly>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" 
+                        onclick="closeCreateModal()" 
+                        class="px-6 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-6 py-2 rounded-lg">
+                    Add Book
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
     </div>
 
     <script>
