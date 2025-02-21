@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Bibliothèque Saint-Marc</title>
+    <title>Book Management - Saint-Marc Library</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
@@ -12,7 +12,7 @@
         <!-- Navigation Bar -->
         <nav class="bg-[#300a24] p-4 shadow-lg">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div class="text-white text-xl font-semibold">Bibliothèque Saint-Marc</div>
+                <div class="text-white text-xl font-semibold">Saint-Marc Library</div>
                 <div class="flex items-center gap-4">
                     <span class="text-gray-300">Welcome, {{ Auth::user()?->fullname }}, {{ Auth::user()?->role }}</span>
                     <form method="POST" action="{{ url('logout') }}" class="inline">
@@ -34,140 +34,185 @@
             @endif
 
             <header class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-bold text-white">Admin Dashboard</h1>
+                <h1 class="text-3xl font-bold text-white">Book Management</h1>
+                <button onclick="openCreateModal()" 
+                        class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Add a Book
+                </button>
             </header>
 
-            <!-- Grid de cards -->
+            <!-- Books Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Gestion des Livres -->
-                <div class="bg-[#300a24] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-white">Gestion des Livres</h3>
-                            <button onclick="openBooksModal()" 
-                                    class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Ajouter
-                            </button>
+                @foreach ($books as $book)
+                    <div class="bg-[#300a24] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                        <div class="aspect-w-16 aspect-h-9">
+                            <img src="https://media.istockphoto.com/id/1242139791/vector/abstract-open-schoolbook-with-icons-of-school-subjects.jpg?s=612x612&w=0&k=20&c=471L4qYzgwpdcvdFCW_Kc2KwWN3bxNUd-wVGQcUMLpQ=" 
+                                 alt="{{ $book->title }}"
+                                 class="w-full h-48 object-cover"
+                                 onerror="this.src='/api/placeholder/400/320';this.onerror=null;">
                         </div>
-                        <p class="text-gray-300 mb-4">Gérez votre collection de livres</p>
-                        <ul class="text-gray-300">
-                            <li class="flex items-center gap-2 mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Ajouter de nouveaux livres
-                            </li>
-                            <li class="flex items-center gap-2 mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Modifier les informations
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Supprimer des livres
-                            </li>
-                        </ul>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-3 text-white">{{ $book->title }}</h3>
+                            <div class="space-y-2 text-gray-300">
+                                <p>
+                                    <span class="font-medium">Status:</span>
+                                    @if($book->isAvailable)
+                                        <span class="text-green-400">Available</span>
+                                    @else
+                                        <span class="text-red-400">Borrowed by {{ $book->borrowsBY }}</span>
+                                    @endif
+                                </p>
+                                <p>
+                                    <span class="font-medium">Category:</span>
+                                    {{ $book->category->name }}
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-600">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="openEditModal('{{ $book->id }}', '{{ $book->title }}', '{{ $book->imgURL }}', '{{ $book->category_id }}')"
+                                            class="text-yellow-500 hover:text-yellow-600 p-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                    <form action="{{ route('books.destroy', $book->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="text-red-500 hover:text-red-600 p-2"
+                                                onclick="return confirm('Are you sure you want to delete this book?');">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                @endforeach
+            </div>
+        </div>
 
-                <!-- Gestion des Utilisateurs -->
-                <div class="bg-[#300a24] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-white">Gestion des Utilisateurs</h3>
-                            <button onclick="openUsersModal()" 
-                                    class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Ajouter
-                            </button>
-                        </div>
-                        <p class="text-gray-300 mb-4">Gérez les comptes utilisateurs</p>
-                        <ul class="text-gray-300">
-                            <li class="flex items-center gap-2 mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Créer des comptes
-                            </li>
-                            <li class="flex items-center gap-2 mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Gérer les permissions
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Désactiver des comptes
-                            </li>
-                        </ul>
-                    </div>
+        <!-- Create Modal -->
+        <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+            <div class="bg-[#300a24] p-8 rounded-xl shadow-lg w-full max-w-2xl mx-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-white">Add a New Book</h2>
+                    <button onclick="closeCreateModal()" class="text-gray-300 hover:text-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-
-                <!-- Gestion des Emprunts -->
-                <div class="bg-[#300a24] rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-white">Gestion des Emprunts</h3>
-                            <button onclick="openLoansModal()" 
-                                    class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Nouveau
-                            </button>
-                        </div>
-                        <p class="text-gray-300 mb-4">Suivez les emprunts de livres</p>
-                        <ul class="text-gray-300">
-                            <li class="flex items-center gap-2 mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Enregistrer les emprunts
-                            </li>
-                            <li class="flex items-center gap-2 mb-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Gérer les retours
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Suivre les retards
-                            </li>
-                        </ul>
+                <form action="{{ route('books.store') }}" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="title" class="block text-gray-300 font-medium mb-2">Title</label>
+                        <input type="text" 
+                               id="title" 
+                               name="title" 
+                               class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                               required>
                     </div>
-                </div>
+                    <div class="mb-4">
+                        <label for="imgURL" class="block text-gray-300 font-medium mb-2">Image URL</label>
+                        <input type="url" 
+                               id="imgURL" 
+                               name="imgURL" 
+                               class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                               required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="category_id" class="block text-gray-300 font-medium mb-2">Category</label>
+                        <select id="category_id" 
+                                name="category_id" 
+                                class="w-full px-4 py-2 bg-[#2C001E] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e95420] text-white" 
+                                required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" 
+                                onclick="closeCreateModal()" 
+                                class="px-6 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="bg-[#e95420] hover:bg-[#e95420]/90 text-white px-6 py-2 rounded-lg">
+                            Add Book
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <script>
-        function openBooksModal() {
-            // Add your modal opening logic for books
-            alert('Ouverture du modal de gestion des livres');
+        // Fonctions pour le modal de création
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('createModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
         }
 
-        function openUsersModal() {
-            // Add your modal opening logic for users
-            alert('Ouverture du modal de gestion des utilisateurs');
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createModal').classList.remove('flex');
+            document.body.style.overflow = 'auto';
         }
 
-        function openLoansModal() {
-            // Add your modal opening logic for loans
-            alert('Ouverture du modal de gestion des emprunts');
+        // Fonctions pour le modal d'édition
+        function openEditModal(id, title, content, imageUrl) {
+            const modal = document.getElementById('editModal');
+            const form = document.getElementById('editForm');
+            const titleInput = document.getElementById('edit_title');
+            const contentInput = document.getElementById('edit_content');
+            const imageUrlInput = document.getElementById('edit_image_url');
+
+            form.action = `/posts/${id}`;
+            titleInput.value = title;
+            contentInput.value = content;
+            imageUrlInput.value = imageUrl || '';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
         }
-    </script>
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fermeture des modals avec Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeCreateModal();
+                closeEditModal();
+            }
+        });
+
+        // Fermeture des modals en cliquant en dehors
+        window.onclick = function(event) {
+            const createModal = document.getElementById('createModal');
+            const editModal = document.getElementById('editModal');
+            
+            if (event.target === createModal) {
+                closeCreateModal();
+            }
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        }
+    </script>    
 </body>
 </html>

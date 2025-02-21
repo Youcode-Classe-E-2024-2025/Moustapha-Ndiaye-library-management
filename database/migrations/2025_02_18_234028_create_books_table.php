@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title', 255);
             $table->string('imgURL', 100);
+            $table->integer('user_id')->nullable()->change();
             $table->boolean('isAvailable')->default(true);
             $table->string('borrowsBY', 100)->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('set null');
