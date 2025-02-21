@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 
 {
+    public function adminDashboard(){
+        return view('admin.dashboard');
+
+    }
+    public function userDashboard(){
+        return view('user.dashboard');
+    }
 
     public function showRegisterForm()
     {
@@ -19,11 +26,18 @@ class AuthController extends Controller
     }
 
     public function showLoginForm(){
+        if (Auth::user()){
+            return view('user.dashbord');
+        }
         return view('auth.login');
     }
 
     public function index(){
-        return view('home');
+        if (Auth::user()->role === 'admin'){
+            return to_route('admin');
+        }
+
+        return to_route('user');
     }
 
     // resgistration 
@@ -58,28 +72,34 @@ class AuthController extends Controller
     }
 
     // login method 
-    public function login(Request $request){
+    public function login(Request $request)
+{
+    $credential = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        // data validation
-        $credential = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        // checking datas
-        if (Auth::attempt($credential)){
-            return to_route('home')->with('success', 'login sucessfully');
+    if (Auth::attempt($credential)) {
+        $request->session()->regenerate();
+        
+        // Redirection based on the role 
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('admin');
         }
-
-        // error message
-        return back()->withErrors([
-            'email' => 'Email or password incorrect'
-        ]);
+        return redirect()->route('user');
     }
 
+    return back()->withErrors([
+        'email' => 'Email ou mot de passe incorrect'
+    ]);
+}
     // logout method 
     public function logout(Request $request){
-        Auth::logout();
-        return redirect()->route('login');
+        auth()->logout();
+
+        // $request = session->invalidate();
+        // $request = session->regenerateToken();
+
+        return to_route('login');
     }
 }
